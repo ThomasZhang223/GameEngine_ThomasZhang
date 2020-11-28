@@ -19,23 +19,33 @@ void Engine::Start(sf::RenderWindow* win)
 	}
 }
 
-Engine::Engine(void)
+void Engine::AddSystem(ECS::EntitySystem* newSys)
 {
-}
-
-Engine::~Engine(void)
-{
+	world->registerSystem(newSys);
+	world->enableSystem(newSys);
 }
 
 void Engine::Update()
 {
 	sf::Event event;
 
+	//listen to any event occurring while the program is running
 	while (window->pollEvent(event) == true)
 	{
+		//close requested event
 		if (event.type == sf::Event::Closed)
 		{
 			window->close();
 		}
 	}
+
+	world->tick(10.0f);
+}
+
+Engine::Engine(void)
+{
+}
+
+Engine::~Engine(void)
+{
 }
