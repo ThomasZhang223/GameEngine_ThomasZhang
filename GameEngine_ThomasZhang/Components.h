@@ -35,3 +35,36 @@ public:
 	}
 };
 ECS_DEFINE_TYPE(Sprite2D);
+
+
+struct Animator
+{
+public:
+	ECS_DECLARE_TYPE;
+
+	int frameWidth, frameHeight;
+	int currentColumn, currentRow;
+	int totalColumn, totalRow;
+
+	float currentTime, nextTimeFrame;
+
+	bool isFacingRight;
+
+	Animator(int newWidth, int newHeight, float timeBetweenFrames, int newColumn, int newRows)
+	{
+		this->frameWidth = newWidth;
+		this->frameHeight = newHeight;
+
+		currentColumn = 0;
+		currentRow = 0;
+
+		this->nextTimeFrame = timeBetweenFrames;
+		this->totalColumn = newColumn;
+		this->totalRow = newRows;
+
+		currentTime = 0;
+
+		isFacingRight = true;
+	}
+};
+ECS_DEFINE_TYPE(Animator);
