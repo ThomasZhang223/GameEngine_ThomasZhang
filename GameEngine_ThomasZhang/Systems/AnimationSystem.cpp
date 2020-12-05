@@ -15,10 +15,23 @@ void AnimationSystem::tick(ECS::World* world, float deltaTime)
 			ECS::ComponentHandle<Animator> animator,
 			ECS::ComponentHandle<Sprite2D> sprite)->void
 	{
-			sprite->sprite.setTextureRect(
-				sf::IntRect(animator->currentColumn * animator->frameWidth,
-					animator->currentRow * animator->frameHeight,
-					animator->frameWidth, animator->frameHeight));
+			// set timer for animator
+			animator->currentTime += deltaTime;
 
+			// set animation forward and reset to first frame to loop
+			if (animator->currentTime >= animator->nextTimeFrame)
+			{
+				animator->currentTime = 0; 
+
+				// run through the animation spritesheet regardless of column or row
+				animator->currentColumn = (animator->currentColumn + 1) % animator->totalColumn;
+			}
+
+			sprite->sprite.setTextureRect(
+				sf::IntRect(
+					animator->currentColumn * animator->frameWidth,
+					animator->currentRow * animator->frameHeight,
+					animator->frameWidth, 
+					animator->frameHeight));
 	});
 }
