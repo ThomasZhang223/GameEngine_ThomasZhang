@@ -105,7 +105,7 @@ void PhysicsSystem::checkCollisionSides(
 		transform->xSpeed = 0;
 	}
 
-	if (touchingEntity->bottomEdge + transform->ySpeed > touchedRectTop &&
+	else if (touchingEntity->bottomEdge + transform->ySpeed > touchedRectTop &&
 		touchingEntity->leftEdge<touchedRectRight&&
 		touchingEntity->rightEdge>touchedRectLeft &&
 		transform->ySpeed > 0)
@@ -113,7 +113,7 @@ void PhysicsSystem::checkCollisionSides(
 		transform->ySpeed = 0;
 	}
 
-	if (touchingEntity->leftEdge + transform->xSpeed < touchedRectRight &&
+	else if (touchingEntity->leftEdge + transform->xSpeed < touchedRectRight &&
 		touchingEntity->bottomEdge>touchedRectTop &&
 		touchingEntity->topEdge < touchedRectBottom &&
 		transform->xSpeed < 0)
@@ -121,7 +121,7 @@ void PhysicsSystem::checkCollisionSides(
 		transform->xSpeed = 0;
 	}
 
-	if (touchingEntity->bottomEdge + transform->ySpeed >touchedRectTop &&
+	else if (touchingEntity->bottomEdge + transform->ySpeed >touchedRectTop &&
 		touchingEntity->leftEdge<touchedRectRight &&
 		touchingEntity->rightEdge > touchedRectLeft &&
 		transform->ySpeed < 0)
@@ -158,4 +158,48 @@ void PhysicsSystem::checkCollisionSides(ECS::Entity* touchingEntity, ECS::Entity
 
 void PhysicsSystem::tick(ECS::World* world, float deltatime)
 {
+	world->each<BoxCollider, Sprite2D, Transform>(
+		[&](ECS::Entity* entity,
+			ECS::ComponentHandle<BoxCollider> box,
+			ECS::ComponentHandle<Sprite2D> sprite,
+			ECS::ComponentHandle<Transform> transform
+		) -> void 
+	{
+		box->Update(transform->xPos, transform->yPos,
+			sprite->sprite.getTextureRect().width,
+			sprite->sprite.getTextureRect().height);
+	});
+
+	world->each<BoxCollider, Transform>(
+		[&](ECS::Entity* touchingEntity,
+			ECS::ComponentHandle<BoxCollider> touchingBox,
+			ECS::ComponentHandle<Transform> transform1
+			)->void
+		{
+			world->each<BoxCollider, Transform>(
+				[&](ECS::Entity* touchedEntity,
+					ECS::ComponentHandle<BoxCollider> touchedBox,
+					ECS::ComponentHandle<Transform> transform2
+					) -> void
+				{
+					// statement to avoid comparing same entity to itself
+					if (touchingEntity->getEntityId() != touchedEntity->getEntityId())
+					{
+						// initial collision check
+						if (isColliding(touchingBox, touchedBox) == true)
+						{
+							//final collision check
+							checkCollisionSides(touchingEntity, touchedEntity);
+						}
+					}
+				});
+		});
+
+	world->each<Transform>(
+		[&](ECS::Entity* entity,
+			ECS::ComponentHandle<Transform> transform
+			) -> void
+	{
+		transform->move();
+	});
 }
