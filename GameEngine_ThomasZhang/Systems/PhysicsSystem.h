@@ -37,7 +37,7 @@ public:
 		sf::RectangleShape touchedRectangle
 	);
 
-	void checkCollisionSides(
+	void PushEntity(
 		ECS::Entity* touchingEntity,
 		ECS::Entity* touchedEntity
 	);

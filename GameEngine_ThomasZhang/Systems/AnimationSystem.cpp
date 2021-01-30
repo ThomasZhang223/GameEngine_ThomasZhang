@@ -10,10 +10,10 @@ AnimationSystem::~AnimationSystem(void)
 
 void AnimationSystem::tick(ECS::World* world, float deltaTime)
 {
-	world->each<Animator, Sprite2D>(
+	world->each<struct Animator, struct Sprite2D>(
 		[&](ECS::Entity* entity,
-			ECS::ComponentHandle<Animator> animator,
-			ECS::ComponentHandle<Sprite2D> sprite)->void
+			ECS::ComponentHandle<struct Animator> animator,
+			ECS::ComponentHandle<struct Sprite2D> sprite)->void
 	{
 			// set timer for animator
 			animator->currentTime += deltaTime;

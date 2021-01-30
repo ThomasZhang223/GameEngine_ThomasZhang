@@ -28,20 +28,20 @@ int main(int argc, char* args[])
 	tux = gameEngine.world->create();
 
 	//assign components to entities after creation
-	background->assign<Transform>(0, 0);
-	background->assign<Sprite2D>("../Debug/Pics/bg.jpg");
+	background->assign<struct Transform>(0, 0);
+	background->assign<struct Sprite2D>("../Debug/Pics/bg.jpg");
 
-	stickFigure->assign<Transform>(300, 300);
-	stickFigure->assign<Sprite2D>("../Debug/Pics/herosheet.png");
-	stickFigure->assign<Animator>(32, 32, 1500.0f, 4, 1);
-	stickFigure->assign<BoxCollider>();
+	stickFigure->assign<struct Transform>(300, 300, 0.2f, 0.2f);
+	stickFigure->assign<struct Sprite2D>("../Debug/Pics/herosheet.png");
+	stickFigure->assign<struct Animator>(32, 32, 1500.0f, 4, 1);
+	stickFigure->assign<struct BoxCollider>();
 
-	tux->assign<Transform>(200, 200);
-	tux->assign<Sprite2D>("../Debug/Pics/tux_from_linux.png");
-	tux->assign<Animator>(56, 72, 2000.0f, 3, 9);
-	tux->get<Animator>()->currentRow = 0; // Idle row
-	tux->assign<InputController>();
-	tux->assign<BoxCollider>();
+	tux->assign<struct Transform>(200, 200, 0.3f, 0.3f);
+	tux->assign<struct Sprite2D>("../Debug/Pics/tux_from_linux.png");
+	tux->assign<struct Animator>(56, 72, 2000.0f, 3, 9);
+	tux->get<struct Animator>()->currentRow = 0; // Idle row
+	tux->assign<struct InputController>();
+	tux->assign<struct BoxCollider>();
 
 	std::cout << background->getEntityId() << " is the entity ID" << std::endl;
 	std::cout << stickFigure->getEntityId() << " is the entity ID" << std::endl;

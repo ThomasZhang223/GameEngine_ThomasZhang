@@ -13,10 +13,10 @@ void RenderingSystem::tick(ECS::World* world, float deltaTime)
 {
 	Engine::GetInstance().window->clear();
 
-	world->each<Transform, Sprite2D>(
+	world->each<struct Transform, struct Sprite2D>(
 		[&](ECS::Entity* entity,
-			ECS::ComponentHandle<Transform> transform,
-			ECS::ComponentHandle<Sprite2D> sprite)->void
+			ECS::ComponentHandle<struct Transform> transform,
+			ECS::ComponentHandle<struct Sprite2D> sprite)->void
 		{
 			if (textureMap.count(sprite->texture) < 1)
 			{

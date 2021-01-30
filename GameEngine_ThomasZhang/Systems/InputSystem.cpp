@@ -15,9 +15,9 @@ void InputSystem::tick(ECS::World* world, float deltaTime)
 
 void InputSystem::getKeyEvents(ECS::World* world)
 {
-	world->each<InputController>(
+	world->each<struct InputController>(
 		[&](ECS::Entity* entity,
-			ECS::ComponentHandle<InputController> input)->void
+			ECS::ComponentHandle<struct InputController> input)->void
 		{
 			input->wKey = sf::Keyboard::isKeyPressed(sf::Keyboard::W);
 			input->aKey = sf::Keyboard::isKeyPressed(sf::Keyboard::A);

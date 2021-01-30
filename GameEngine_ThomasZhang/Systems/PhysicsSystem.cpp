@@ -9,23 +9,19 @@ PhysicsSystem::~PhysicsSystem()
 }
 
 bool PhysicsSystem::isColliding(
-	ECS::ComponentHandle<BoxCollider> touchingEntity, 
-	ECS::ComponentHandle<BoxCollider> touchedEntity, 
+	ECS::ComponentHandle<struct BoxCollider> touchingEntity, 
+	ECS::ComponentHandle<struct BoxCollider> touchedEntity, 
 	float x, float y)
 {
-	if (touchingEntity->rightEdge + x > touchedEntity->leftEdge && 
-		touchedEntity->rightEdge > touchingEntity->leftEdge + x)
-	{
-		if (touchingEntity->bottomEdge + y > touchedEntity->topEdge &&
-			touchedEntity->bottomEdge > touchingEntity->topEdge + y)
-		{
-			return true;
-		}
-	}
+	return touchingEntity->rightEdge + x > touchedEntity->leftEdge &&
+		touchedEntity->rightEdge > touchingEntity->leftEdge + x &&
+		touchingEntity->bottomEdge + y > touchedEntity->topEdge &&
+		touchedEntity->bottomEdge > touchingEntity->topEdge + y;
+
 }
 
 bool PhysicsSystem::isColliding(
-	ECS::ComponentHandle<BoxCollider> touchingEntity, 
+	ECS::ComponentHandle<struct BoxCollider> touchingEntity, 
 	sf::RectangleShape touchedRectangle, float x, float y)
 {
 	float touchedRectLeft = touchedRectangle.getPosition().x;
@@ -41,16 +37,19 @@ bool PhysicsSystem::isColliding(
 }
 
 bool PhysicsSystem::isColliding(
-	ECS::ComponentHandle<BoxCollider> touchingEntity, 
-	ECS::ComponentHandle<BoxCollider> touchedEntity)
+	ECS::ComponentHandle<struct BoxCollider> touchingEntity, 
+	ECS::ComponentHandle<struct BoxCollider> touchedEntity)
 {
-	return touchingEntity->rightEdge > touchedEntity->leftEdge && touchedEntity->rightEdge > touchingEntity->leftEdge;
+	return touchingEntity->rightEdge > touchedEntity->leftEdge &&
+		touchedEntity->rightEdge > touchingEntity->leftEdge &&
+		touchingEntity->bottomEdge > touchedEntity->topEdge &&
+		touchedEntity->bottomEdge > touchingEntity->topEdge;
 }
 
 void PhysicsSystem::checkCollisionSides(
-	ECS::ComponentHandle<Transform> transform, 
-	ECS::ComponentHandle<BoxCollider> touchingEntity, 
-	ECS::ComponentHandle<BoxCollider> touchedEntity)
+	ECS::ComponentHandle<struct Transform> transform, 
+	ECS::ComponentHandle<struct BoxCollider> touchingEntity, 
+	ECS::ComponentHandle<struct BoxCollider> touchedEntity)
 {
 	if (touchingEntity->rightEdge + transform->xSpeed > touchedEntity->leftEdge &&
 		touchingEntity->topEdge<touchedEntity->bottomEdge && 
@@ -76,7 +75,7 @@ void PhysicsSystem::checkCollisionSides(
 		transform->xSpeed = 0;
 	}
 
-	if (touchingEntity->bottomEdge + transform->ySpeed > touchedEntity->topEdge &&
+	if (touchingEntity->topEdge + transform->ySpeed > touchedEntity->bottomEdge &&
 		touchingEntity->leftEdge<touchedEntity->rightEdge &&
 		touchingEntity->rightEdge > touchedEntity->leftEdge &&
 		transform->ySpeed < 0)
@@ -87,8 +86,8 @@ void PhysicsSystem::checkCollisionSides(
 }
 
 void PhysicsSystem::checkCollisionSides(
-	ECS::ComponentHandle<Transform> transform, 
-	ECS::ComponentHandle<BoxCollider> touchingEntity, 
+	ECS::ComponentHandle<struct Transform> transform, 
+	ECS::ComponentHandle<struct BoxCollider> touchingEntity, 
 	sf::RectangleShape touchedRectangle)
 {
 	float touchedRectLeft = touchedRectangle.getPosition().x;
@@ -105,7 +104,7 @@ void PhysicsSystem::checkCollisionSides(
 		transform->xSpeed = 0;
 	}
 
-	else if (touchingEntity->bottomEdge + transform->ySpeed > touchedRectTop &&
+	if (touchingEntity->bottomEdge + transform->ySpeed > touchedRectTop &&
 		touchingEntity->leftEdge<touchedRectRight&&
 		touchingEntity->rightEdge>touchedRectLeft &&
 		transform->ySpeed > 0)
@@ -113,7 +112,7 @@ void PhysicsSystem::checkCollisionSides(
 		transform->ySpeed = 0;
 	}
 
-	else if (touchingEntity->leftEdge + transform->xSpeed < touchedRectRight &&
+	if (touchingEntity->leftEdge + transform->xSpeed < touchedRectRight &&
 		touchingEntity->bottomEdge>touchedRectTop &&
 		touchingEntity->topEdge < touchedRectBottom &&
 		transform->xSpeed < 0)
@@ -121,7 +120,7 @@ void PhysicsSystem::checkCollisionSides(
 		transform->xSpeed = 0;
 	}
 
-	else if (touchingEntity->bottomEdge + transform->ySpeed >touchedRectTop &&
+	if (touchingEntity->bottomEdge + transform->ySpeed >touchedRectTop &&
 		touchingEntity->leftEdge<touchedRectRight &&
 		touchingEntity->rightEdge > touchedRectLeft &&
 		transform->ySpeed < 0)
@@ -131,38 +130,42 @@ void PhysicsSystem::checkCollisionSides(
 
 }
 
-void PhysicsSystem::checkCollisionSides(ECS::Entity* touchingEntity, ECS::Entity* touchedEntity)
+void PhysicsSystem::PushEntity(ECS::Entity* touchingEntity, ECS::Entity* touchedEntity)
 {
-	ECS::ComponentHandle<Transform> touchingTransform = touchingEntity->get<Transform>(), touchedTransform = touchedEntity->get<Transform>();
+	float newTouchingX = touchingEntity->get<struct Transform>()->xPos;
+	float newTouchingY = touchingEntity->get<struct Transform>()->yPos;
 
-	if ((touchingTransform->xPos - touchingTransform->xSpeed) < (touchedTransform->xPos - touchingTransform->xSpeed))
+	float touchedX = touchedEntity->get<struct Transform>()->xPos;
+	float touchedY = touchedEntity->get<struct Transform>()->yPos;
+
+	float xSpeed = touchingEntity->get<struct Transform>()->xSpeed;
+	float ySpeed = touchingEntity->get<struct Transform>()->ySpeed;
+
+	if (xSpeed > 0 && newTouchingX <= touchedX)
 	{
-		touchedTransform->xPos++;
+		touchedEntity->get<struct Transform>()->xPos++;
 	}
-
-	else if ((touchingTransform->xPos - touchingTransform->xSpeed) > (touchedTransform->xPos - touchingTransform->xSpeed))
+	else if (xSpeed < 0 && newTouchingX >= touchedX)
 	{
-		touchedTransform->xPos--;
+		touchedEntity->get<struct Transform>()->xPos--;
 	}
-
-	if ((touchingTransform->yPos - touchingTransform->ySpeed) < (touchedTransform->yPos - touchingTransform->ySpeed))
+	if (ySpeed > 0 && newTouchingY <= touchedY)
 	{
-		touchedTransform->yPos++;
+		touchedEntity->get<struct Transform>()->yPos++;
 	}
-
-	if ((touchingTransform->yPos - touchingTransform->ySpeed) > (touchedTransform->yPos - touchingTransform->ySpeed))
+	else if (ySpeed < 0 && newTouchingY >= touchedY)
 	{
-		touchedTransform->yPos--;
+		touchedEntity->get<struct Transform>()->yPos--;
 	}
 }
 
 void PhysicsSystem::tick(ECS::World* world, float deltatime)
 {
-	world->each<BoxCollider, Sprite2D, Transform>(
+	world->each<struct BoxCollider, struct Sprite2D, struct Transform>(
 		[&](ECS::Entity* entity,
-			ECS::ComponentHandle<BoxCollider> box,
-			ECS::ComponentHandle<Sprite2D> sprite,
-			ECS::ComponentHandle<Transform> transform
+			ECS::ComponentHandle<struct BoxCollider> box,
+			ECS::ComponentHandle<struct Sprite2D> sprite,
+			ECS::ComponentHandle<struct Transform> transform
 		) -> void 
 	{
 		box->Update(transform->xPos, transform->yPos,
@@ -170,16 +173,16 @@ void PhysicsSystem::tick(ECS::World* world, float deltatime)
 			sprite->sprite.getTextureRect().height);
 	});
 
-	world->each<BoxCollider, Transform>(
+	world->each<struct BoxCollider, struct Transform>(
 		[&](ECS::Entity* touchingEntity,
-			ECS::ComponentHandle<BoxCollider> touchingBox,
-			ECS::ComponentHandle<Transform> transform1
+			ECS::ComponentHandle<struct BoxCollider> touchingBox,
+			ECS::ComponentHandle<struct Transform> transform1
 			)->void
 		{
-			world->each<BoxCollider, Transform>(
+			world->each<struct BoxCollider, struct Transform>(
 				[&](ECS::Entity* touchedEntity,
-					ECS::ComponentHandle<BoxCollider> touchedBox,
-					ECS::ComponentHandle<Transform> transform2
+					ECS::ComponentHandle<struct BoxCollider> touchedBox,
+					ECS::ComponentHandle<struct Transform> transform2
 					) -> void
 				{
 					// statement to avoid comparing same entity to itself
@@ -189,15 +192,15 @@ void PhysicsSystem::tick(ECS::World* world, float deltatime)
 						if (isColliding(touchingBox, touchedBox) == true)
 						{
 							//final collision check
-							checkCollisionSides(touchingEntity, touchedEntity);
+							PushEntity(touchingEntity, touchedEntity);
 						}
 					}
 				});
 		});
 
-	world->each<Transform>(
+	world->each<struct Transform>(
 		[&](ECS::Entity* entity,
-			ECS::ComponentHandle<Transform> transform
+			ECS::ComponentHandle<struct Transform> transform
 			) -> void
 	{
 		transform->move();

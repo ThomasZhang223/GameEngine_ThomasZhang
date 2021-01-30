@@ -9,12 +9,15 @@ public:
 	ECS_DECLARE_TYPE;
 
 	float xPos, yPos, rotation;
-	float xSpeed, ySpeed;
+	float xSpeed, ySpeed, xSpeedMod, ySpeedMod;
 
-	Transform(float x, float y)
+	Transform(float x, float y, float newXSpeed = 0.0f, float newYSpeed = 0.0f)
 	{
 		xPos = x; 
 		yPos = y;
+
+		xSpeedMod = newXSpeed;
+		ySpeedMod = newYSpeed;
 
 		xSpeed = 0;
 		ySpeed = 0;
@@ -144,3 +147,17 @@ public:
 	}
 };
 ECS_DEFINE_TYPE(BoxCollider);
+
+struct Camera
+{
+public:
+	ECS_DECLARE_TYPE;
+
+	sf::View cameraView;
+	
+	Camera(sf::Vector2f pivot)
+	{
+		cameraView.setCenter(pivot);
+	}
+};
+ECS_DEFINE_TYPE(Camera);
