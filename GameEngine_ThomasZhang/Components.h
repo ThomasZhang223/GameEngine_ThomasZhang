@@ -9,15 +9,14 @@ public:
 	ECS_DECLARE_TYPE;
 
 	float xPos, yPos, rotation;
-	float xSpeed, ySpeed, xSpeedMod, ySpeedMod;
+	float xSpeed, ySpeed, speedMod;
 
-	Transform(float x, float y, float newXSpeed = 0.0f, float newYSpeed = 0.0f)
+	Transform(float x, float y, float newSpeedMod = 0.0f) 
 	{
 		xPos = x; 
 		yPos = y;
 
-		xSpeedMod = newXSpeed;
-		ySpeedMod = newYSpeed;
+		speedMod = newSpeedMod;
 
 		xSpeed = 0;
 		ySpeed = 0;
@@ -126,7 +125,7 @@ struct BoxCollider
 public:
 	ECS_DECLARE_TYPE;
 
-	int leftEdge, rightEdge, topEdge, bottomEdge;
+	float leftEdge, rightEdge, topEdge, bottomEdge, boxWidth, boxHeight;
 
 	BoxCollider()
 	{
@@ -134,6 +133,8 @@ public:
 		this->rightEdge = 0;
 		this->topEdge = 0;
 		this->bottomEdge = 0;
+		this->boxWidth = 0;
+		this->boxHeight = 0;
 
 		//std::memset(this, '\0', sizeof(BoxCollider));
 	}
@@ -144,6 +145,8 @@ public:
 		this->rightEdge = xSide + width;
 		this->topEdge = ySide;
 		this->bottomEdge = ySide + height;
+		this->boxWidth = width;
+		this->boxHeight = height;
 	}
 };
 ECS_DEFINE_TYPE(BoxCollider);

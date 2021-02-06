@@ -23,12 +23,12 @@ void MovementSystem::tick(ECS::World* world, float deltaTime)
 			{
 				if (input->wKey == true)
 				{
-					transform->ySpeed = -transform->ySpeedMod;
+					transform->ySpeed = -transform->speedMod;
 					transform->move();
 				}
 				else if (input->sKey == true)
 				{
-					transform->ySpeed = transform->ySpeedMod;
+					transform->ySpeed = transform->speedMod;
 					transform->move();
 				}
 				else
@@ -40,14 +40,14 @@ void MovementSystem::tick(ECS::World* world, float deltaTime)
 				{
 					animator->isFacingRight = false;
 					animator->currentRow = 1;
-					transform->xSpeed = -transform->xSpeedMod;
+					transform->xSpeed = -transform->speedMod;
 					transform->move();
 				}
 				else if (input->dKey == true)
 				{
 					animator->isFacingRight = true;
 					animator->currentRow = 1;
-					transform->xSpeed = transform->xSpeedMod;
+					transform->xSpeed = transform->speedMod;
 					transform->move();
 				}
 				else
@@ -59,6 +59,6 @@ void MovementSystem::tick(ECS::World* world, float deltaTime)
 			}
 
 			std::printf("X: %f\nY: %f\n", transform->xPos, transform->yPos);
-			std::printf("XVEL: %f\nYVEL: %f\n", transform->xSpeed + transform->xSpeedMod, transform->ySpeed + transform->ySpeedMod);
+			std::printf("XVEL: %f\nYVEL: %f\n", transform->xSpeed + transform->speedMod, transform->ySpeed + transform->speedMod);
 	});
 }

@@ -143,19 +143,19 @@ void PhysicsSystem::PushEntity(ECS::Entity* touchingEntity, ECS::Entity* touched
 
 	if (xSpeed > 0 && newTouchingX <= touchedX)
 	{
-		touchedEntity->get<struct Transform>()->xPos++;
+		touchedEntity->get<struct Transform>()->xPos = touchingEntity->get<struct BoxCollider>()->rightEdge;
 	}
 	else if (xSpeed < 0 && newTouchingX >= touchedX)
 	{
-		touchedEntity->get<struct Transform>()->xPos--;
+		touchedEntity->get<struct Transform>()->xPos = touchingEntity->get<struct BoxCollider>()->leftEdge - touchedEntity->get<struct BoxCollider>()->boxWidth;
 	}
 	if (ySpeed > 0 && newTouchingY <= touchedY)
 	{
-		touchedEntity->get<struct Transform>()->yPos++;
+		touchedEntity->get<struct Transform>()->yPos = touchingEntity->get<struct BoxCollider>()->bottomEdge;
 	}
 	else if (ySpeed < 0 && newTouchingY >= touchedY)
 	{
-		touchedEntity->get<struct Transform>()->yPos--;
+		touchedEntity->get<struct Transform>()->yPos = touchingEntity->get<struct BoxCollider>()->topEdge - touchedEntity->get<struct BoxCollider>()->boxHeight;
 	}
 }
 
@@ -196,7 +196,7 @@ void PhysicsSystem::tick(ECS::World* world, float deltatime)
 						}
 					}
 				});
-		});
+		});	
 
 	world->each<struct Transform>(
 		[&](ECS::Entity* entity,

@@ -31,17 +31,18 @@ int main(int argc, char* args[])
 	background->assign<struct Transform>(0, 0);
 	background->assign<struct Sprite2D>("../Debug/Pics/bg.jpg");
 
-	stickFigure->assign<struct Transform>(300, 300, 0.2f, 0.2f);
+	stickFigure->assign<struct Transform>(300, 300, 0.2f);
 	stickFigure->assign<struct Sprite2D>("../Debug/Pics/herosheet.png");
 	stickFigure->assign<struct Animator>(32, 32, 1500.0f, 4, 1);
 	stickFigure->assign<struct BoxCollider>();
 
-	tux->assign<struct Transform>(200, 200, 0.3f, 0.3f);
+	tux->assign<struct Transform>(200, 200, 2.0f);
 	tux->assign<struct Sprite2D>("../Debug/Pics/tux_from_linux.png");
 	tux->assign<struct Animator>(56, 72, 2000.0f, 3, 9);
 	tux->get<struct Animator>()->currentRow = 0; // Idle row
 	tux->assign<struct InputController>();
 	tux->assign<struct BoxCollider>();
+	tux->assign<struct Camera>(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
 
 	std::cout << background->getEntityId() << " is the entity ID" << std::endl;
 	std::cout << stickFigure->getEntityId() << " is the entity ID" << std::endl;
