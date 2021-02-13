@@ -58,7 +58,6 @@ void MovementSystem::tick(ECS::World* world, float deltaTime)
 
 			}
 
-			std::printf("X: %f\nY: %f\n", transform->xPos, transform->yPos);
-			std::printf("XVEL: %f\nYVEL: %f\n", transform->xSpeed + transform->speedMod, transform->ySpeed + transform->speedMod);
+		
 	});
 }

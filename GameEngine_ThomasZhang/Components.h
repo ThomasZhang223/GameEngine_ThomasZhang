@@ -11,7 +11,7 @@ public:
 	float xPos, yPos, rotation;
 	float xSpeed, ySpeed, speedMod;
 
-	Transform(float x, float y, float newSpeedMod = 0.0f) 
+	Transform(float x, float y, float newSpeedMod = 0.0f, float newXspeed = 0.0f, float newYSpeed = 0.0f) 
 	{
 		xPos = x; 
 		yPos = y;
