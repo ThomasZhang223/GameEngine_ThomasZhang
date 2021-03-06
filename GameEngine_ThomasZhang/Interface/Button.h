@@ -17,7 +17,7 @@ public:
 
 	bool isHighlighted();
 
-	void hightlight(sf::RenderWindow* window);
+	void highlight(sf::RenderWindow* window);
 	void update(sf::Event event, float deltatime);
 	void render(sf::RenderWindow* window, float deltatime);
 	void checkPressed(sf::Event event);

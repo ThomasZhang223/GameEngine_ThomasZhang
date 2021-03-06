@@ -1,5 +1,7 @@
 #include "States.h"
 
+bool States::bPause = false;
+
 bool States::GetPausedState()
 {
     return States::bPause;

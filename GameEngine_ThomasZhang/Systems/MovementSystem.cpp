@@ -13,51 +13,54 @@ MovementSystem::~MovementSystem()
 
 void MovementSystem::tick(ECS::World* world, float deltaTime)
 {
-	world->each<struct InputController, struct Transform, struct Animator>(
-		[&](ECS::Entity* entity,
-			ECS::ComponentHandle<struct InputController> input,
-			ECS::ComponentHandle<struct Transform> transform,
-			ECS::ComponentHandle<struct Animator> animator) -> void
+	if (States::GetPausedState() == false)
 	{
-			if (input->inputActive == true)
+		world->each<struct InputController, struct Transform, struct Animator>(
+			[&](ECS::Entity* entity,
+				ECS::ComponentHandle<struct InputController> input,
+				ECS::ComponentHandle<struct Transform> transform,
+				ECS::ComponentHandle<struct Animator> animator) -> void
 			{
-				if (input->wKey == true)
+				if (input->inputActive == true)
 				{
-					transform->ySpeed = -transform->speedMod;
-					transform->move();
-				}
-				else if (input->sKey == true)
-				{
-					transform->ySpeed = transform->speedMod;
-					transform->move();
-				}
-				else
-				{
-					transform->ySpeed = 0;
+					if (input->wKey == true)
+					{
+						transform->ySpeed = -transform->speedMod;
+						transform->move();
+					}
+					else if (input->sKey == true)
+					{
+						transform->ySpeed = transform->speedMod;
+						transform->move();
+					}
+					else
+					{
+						transform->ySpeed = 0;
+					}
+
+					if (input->aKey == true)
+					{
+						animator->isFacingRight = false;
+						animator->currentRow = 1;
+						transform->xSpeed = -transform->speedMod;
+						transform->move();
+					}
+					else if (input->dKey == true)
+					{
+						animator->isFacingRight = true;
+						animator->currentRow = 1;
+						transform->xSpeed = transform->speedMod;
+						transform->move();
+					}
+					else
+					{
+						animator->currentRow = 0;
+						transform->xSpeed = 0;
+					}
+
 				}
 
-				if (input->aKey == true)
-				{
-					animator->isFacingRight = false;
-					animator->currentRow = 1;
-					transform->xSpeed = -transform->speedMod;
-					transform->move();
-				}
-				else if (input->dKey == true)
-				{
-					animator->isFacingRight = true;
-					animator->currentRow = 1;
-					transform->xSpeed = transform->speedMod;
-					transform->move();
-				}
-				else
-				{
-					animator->currentRow = 0;
-					transform->xSpeed = 0;
-				}
 
-			}
-
-		
-	});
+			});
+	}
 }

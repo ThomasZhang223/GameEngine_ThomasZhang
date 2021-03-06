@@ -33,17 +33,19 @@ bool Button::isHighlighted()
 	return bHighlighted;
 }
 
-void Button::hightlight(sf::RenderWindow* window)
+void Button::highlight(sf::RenderWindow* window)
 {
-	if (buttonBG.getGlobalBounds().contains(window->mapPixelToCoords(sf::Mouse::getPosition(*window))))
+	bHighlighted = buttonBG.getGlobalBounds().contains(window->mapPixelToCoords(sf::Mouse::getPosition(*window)));
+	
+	if (bHighlighted)
 	{
 		buttonBG.setFillColor(sf::Color(highlightedColor));
-		bHighlighted = true;
+		this->bHighlighted = true;
 	}
 	else
 	{
 		buttonBG.setFillColor(sf::Color(defaultColor));
-		bHighlighted = false;
+		this->bHighlighted = false;
 	}
 }
 
