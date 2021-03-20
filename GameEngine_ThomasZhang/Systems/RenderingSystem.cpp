@@ -37,6 +37,34 @@ void RenderingSystem::tick(ECS::World* world, float deltaTime)
 				Engine::GetInstance().window->draw(sprite->sprite);
 			});
 
+		world->each<struct TileMap>(
+			[&](ECS::Entity* entity,
+				ECS::ComponentHandle<struct TileMap> tileMap)->void
+			{
+				// look through each tile and render onto the engine's window instance
+				// note: this is looping through a vector, which stores another vector, which stores the tile value
+				for (auto& x : tileMap->map)
+				{
+					for (auto& y : x)
+					{
+						for (auto& z : y)
+						{
+							if (z != nullptr)
+							{
+								sf::RenderWindow* winRef = Engine::GetInstance().window;
+								winRef->draw(z->shape);
+
+								if (z->getCollision())
+								{
+									tileMap->collisionBox.setPosition(z->getPosition());
+									winRef->draw(tileMap->collisionBox);
+								}
+							}
+						}
+					}
+				}
+			});
+
 		Engine::GetInstance().window->display();
 	}
 }

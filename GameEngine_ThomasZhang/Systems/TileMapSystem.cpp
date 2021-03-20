@@ -14,13 +14,16 @@ void TileMapSystem::tick(ECS::World* world, float deltaTime)
 		[&](ECS::Entity* entity,
 			ECS::ComponentHandle<TileMap> tileMap) -> void
 		{
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			if (States::GetPausedState() == false)
 			{
-				addTileOnClick(true, tileMap);
-			}
-			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
-			{
-				addTileOnClick(false, tileMap);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+				{
+					addTileOnClick(true, tileMap);
+				}
+				else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+				{
+					addTileOnClick(false, tileMap);
+				}
 			}
 
 			if (ButtonMap::GetMap()["SAVE"]->bClicked)
@@ -41,7 +44,7 @@ void TileMapSystem::addTileOnClick(bool bHadCollision, ECS::ComponentHandle<Tile
 	// reference for windows pointer that is used below to determine active curser position for adding tiles
 	sf::RenderWindow* winRef = Engine::GetInstance().window;
 	sf::Vector2f mousePosView = winRef->mapPixelToCoords(sf::Mouse::getPosition(*winRef));
-	sf::Vector2f mousePosGrid(static_cast<int>(mousePosView.x / tileMap->gridSizeF), static_cast<int>(mousePosView.y / tileMap->gridSizeF));
+	sf::Vector2i mousePosGrid(static_cast<int>(mousePosView.x / tileMap->gridSizeF), static_cast<int>(mousePosView.y / tileMap->gridSizeF));
 	tileMap->addTile(mousePosGrid.x, mousePosGrid.y, 0, bHadCollision);
 
 }

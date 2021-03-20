@@ -21,6 +21,7 @@ int main(int argc, char* args[])
 	gameEngine.AddSystem(new InputSystem(&window));
 	gameEngine.AddSystem(new MovementSystem());
 	gameEngine.AddSystem(new PhysicsSystem());
+	gameEngine.AddSystem(new TileMapSystem());
 
 	// Create and assign 3 entities to the world 
 	background = gameEngine.world->create();
@@ -30,6 +31,7 @@ int main(int argc, char* args[])
 	//assign components to entities after creation
 	background->assign<struct Transform>(0, 0);
 	background->assign<struct Sprite2D>("../Debug/Pics/bg.jpg");
+	background->assign<struct TileMap>();
 
 	stickFigure->assign<struct Transform>(300, 300, 0.1f, 0.1f, 0.1f);
 	stickFigure->assign<struct Sprite2D>("../Debug/Pics/herosheet.png");

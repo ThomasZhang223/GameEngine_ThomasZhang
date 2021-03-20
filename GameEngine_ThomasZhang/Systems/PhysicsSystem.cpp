@@ -9,8 +9,8 @@ PhysicsSystem::~PhysicsSystem()
 }
 
 bool PhysicsSystem::isColliding(
-	ECS::ComponentHandle<struct BoxCollider> touchingEntity, 
-	ECS::ComponentHandle<struct BoxCollider> touchedEntity, 
+	ECS::ComponentHandle<struct BoxCollider> touchingEntity,
+	ECS::ComponentHandle<struct BoxCollider> touchedEntity,
 	float x, float y)
 {
 	return touchingEntity->rightEdge + x > touchedEntity->leftEdge &&
@@ -21,23 +21,36 @@ bool PhysicsSystem::isColliding(
 }
 
 bool PhysicsSystem::isColliding(
-	ECS::ComponentHandle<struct BoxCollider> touchingEntity, 
+	ECS::ComponentHandle<struct BoxCollider> touchingEntity,
 	sf::RectangleShape touchedRectangle, float x, float y)
 {
 	float touchedRectLeft = touchedRectangle.getPosition().x;
-	float touchedRectRight= touchedRectangle.getPosition().x + touchedRectangle.getGlobalBounds().width;
+	float touchedRectRight = touchedRectLeft + touchedRectangle.getGlobalBounds().width;
 
+	float touchedRectTop = touchedRectangle.getPosition().y;
+	float touchedRectBottom = touchedRectTop + touchedRectangle.getGlobalBounds().height;
+
+	return touchingEntity->rightEdge + x > touchedRectLeft &&
+		touchedRectRight > touchingEntity->leftEdge + x &&
+		touchingEntity->bottomEdge + y > touchedRectTop &&
+		touchedRectBottom > touchingEntity->topEdge + y;
+}
+
+bool PhysicsSystem::isColliding(ECS::ComponentHandle<BoxCollider> touchingEntity, sf::RectangleShape touchedRectangle)
+{
+	float touchedRectLeft = touchedRectangle.getPosition().x;
+	float touchedRectRight = touchedRectangle.getPosition().x + touchedRectangle.getGlobalBounds().width;
 	float touchedRectTop = touchedRectangle.getPosition().y;
 	float touchedRectBottom = touchedRectangle.getPosition().y + touchedRectangle.getGlobalBounds().height;
 
-	return touchingEntity->rightEdge> touchedRectLeft &&
+	return touchingEntity->rightEdge > touchedRectLeft &&
 		touchedRectRight > touchingEntity->leftEdge &&
 		touchingEntity->bottomEdge > touchedRectTop &&
 		touchedRectBottom > touchingEntity->topEdge;
 }
 
 bool PhysicsSystem::isColliding(
-	ECS::ComponentHandle<struct BoxCollider> touchingEntity, 
+	ECS::ComponentHandle<struct BoxCollider> touchingEntity,
 	ECS::ComponentHandle<struct BoxCollider> touchedEntity)
 {
 	return touchingEntity->rightEdge > touchedEntity->leftEdge &&
@@ -47,13 +60,13 @@ bool PhysicsSystem::isColliding(
 }
 
 void PhysicsSystem::checkCollisionSides(
-	ECS::ComponentHandle<struct Transform> transform, 
-	ECS::ComponentHandle<struct BoxCollider> touchingEntity, 
+	ECS::ComponentHandle<struct Transform> transform,
+	ECS::ComponentHandle<struct BoxCollider> touchingEntity,
 	ECS::ComponentHandle<struct BoxCollider> touchedEntity)
 {
 	if (touchingEntity->rightEdge + transform->xSpeed > touchedEntity->leftEdge &&
-		touchingEntity->topEdge<touchedEntity->bottomEdge && 
-		touchingEntity->bottomEdge>touchedEntity->topEdge && 
+		touchingEntity->topEdge<touchedEntity->bottomEdge &&
+		touchingEntity->bottomEdge>touchedEntity->topEdge &&
 		transform->xSpeed > 0)
 	{
 		transform->xSpeed = 0;
@@ -69,7 +82,7 @@ void PhysicsSystem::checkCollisionSides(
 
 	if (touchingEntity->leftEdge + transform->xSpeed < touchedEntity->rightEdge &&
 		touchingEntity->bottomEdge>touchedEntity->topEdge &&
-		touchingEntity->topEdge<touchedEntity->bottomEdge &&
+		touchingEntity->topEdge < touchedEntity->bottomEdge &&
 		transform->xSpeed < 0)
 	{
 		transform->xSpeed = 0;
@@ -86,8 +99,8 @@ void PhysicsSystem::checkCollisionSides(
 }
 
 void PhysicsSystem::checkCollisionSides(
-	ECS::ComponentHandle<struct Transform> transform, 
-	ECS::ComponentHandle<struct BoxCollider> touchingEntity, 
+	ECS::ComponentHandle<struct Transform> transform,
+	ECS::ComponentHandle<struct BoxCollider> touchingEntity,
 	sf::RectangleShape touchedRectangle)
 {
 	float touchedRectLeft = touchedRectangle.getPosition().x;
@@ -105,7 +118,7 @@ void PhysicsSystem::checkCollisionSides(
 	}
 
 	if (touchingEntity->bottomEdge + transform->ySpeed > touchedRectTop &&
-		touchingEntity->leftEdge<touchedRectRight&&
+		touchingEntity->leftEdge<touchedRectRight &&
 		touchingEntity->rightEdge>touchedRectLeft &&
 		transform->ySpeed > 0)
 	{
@@ -120,7 +133,7 @@ void PhysicsSystem::checkCollisionSides(
 		transform->xSpeed = 0;
 	}
 
-	if (touchingEntity->bottomEdge + transform->ySpeed >touchedRectTop &&
+	if (touchingEntity->bottomEdge + transform->ySpeed > touchedRectTop &&
 		touchingEntity->leftEdge<touchedRectRight &&
 		touchingEntity->rightEdge > touchedRectLeft &&
 		transform->ySpeed < 0)
@@ -141,21 +154,25 @@ void PhysicsSystem::PushEntity(ECS::Entity* touchingEntity, ECS::Entity* touched
 	float xSpeed = touchingEntity->get<struct Transform>()->xSpeed;
 	float ySpeed = touchingEntity->get<struct Transform>()->ySpeed;
 
-	if (xSpeed > 0 && newTouchingX <= touchedX)
+	if (xSpeed > 0 && newTouchingX < touchedX)
 	{
-		touchedEntity->get<struct Transform>()->xPos = touchingEntity->get<struct BoxCollider>()->rightEdge;
+		//touchedEntity->get<struct Transform>()->xPos = touchingEntity->get<struct BoxCollider>()->rightEdge;
+		touchedEntity->get<struct Transform>()->xPos++;
 	}
-	else if (xSpeed < 0 && newTouchingX >= touchedX)
+	else if (xSpeed < 0 && newTouchingX > touchedX)
 	{
-		touchedEntity->get<struct Transform>()->xPos = touchingEntity->get<struct BoxCollider>()->leftEdge - touchedEntity->get<struct BoxCollider>()->boxWidth;
+		//touchedEntity->get<struct Transform>()->xPos = touchingEntity->get<struct BoxCollider>()->leftEdge - touchedEntity->get<struct BoxCollider>()->boxWidth;
+		touchedEntity->get<struct Transform>()->xPos--;
 	}
-	if (ySpeed > 0 && newTouchingY <= touchedY)
+	else if (ySpeed > 0 && newTouchingY < touchedY)
 	{
-		touchedEntity->get<struct Transform>()->yPos = touchingEntity->get<struct BoxCollider>()->bottomEdge;
+		//touchedEntity->get<struct Transform>()->yPos = touchingEntity->get<struct BoxCollider>()->bottomEdge;
+		touchedEntity->get<struct Transform>()->yPos++;
 	}
-	else if (ySpeed < 0 && newTouchingY >= touchedY)
+	else if (ySpeed < 0 && newTouchingY > touchedY)
 	{
-		touchedEntity->get<struct Transform>()->yPos = touchingEntity->get<struct BoxCollider>()->topEdge - touchedEntity->get<struct BoxCollider>()->boxHeight;
+		//touchedEntity->get<struct Transform>()->yPos = touchingEntity->get<struct BoxCollider>()->topEdge - touchedEntity->get<struct BoxCollider>()->boxHeight;
+		touchedEntity->get<struct Transform>()->yPos--;
 	}
 }
 
@@ -181,20 +198,53 @@ void PhysicsSystem::tick(ECS::World* world, float deltatime)
 				ECS::ComponentHandle<struct Transform> transform1
 				)->void
 			{
-				world->each<struct BoxCollider, struct Transform>(
+
+				world->each<struct BoxCollider>(
 					[&](ECS::Entity* touchedEntity,
-						ECS::ComponentHandle<struct BoxCollider> touchedBox,
-						ECS::ComponentHandle<struct Transform> transform2
+						ECS::ComponentHandle<struct BoxCollider> touchedBox) -> void
+					{
+						// Avoid comparing an entity to itself
+						if (touchingEntity->getEntityId() == touchedEntity->getEntityId())
+						{
+							return;
+						}
+
+						// Initial collision check
+						if (!isColliding(touchingBox, touchedBox))
+						{
+							return;
+						}
+
+						// Final collision check
+						PushEntity(touchingEntity, touchedEntity);
+					});
+
+				world->each<struct TileMap>(
+					[&](ECS::Entity* tileMapEntity,
+						ECS::ComponentHandle<struct TileMap> tileMap
 						) -> void
 					{
-						// statement to avoid comparing same entity to itself
-						if (touchingEntity->getEntityId() != touchedEntity->getEntityId())
+						// Allows you to move away from collision
+						transform1->bColliding = false;
+
+						for (auto& x : tileMap->map)
 						{
-							// initial collision check
-							if (isColliding(touchingBox, touchedBox) == true)
+							for (auto& y : x)
 							{
-								//final collision check
-								PushEntity(touchingEntity, touchedEntity);
+								for (auto& z : y)
+								{
+									if (z == nullptr || !z->colliding)
+									{
+										continue;
+									}
+
+									// Check future position, stop collision
+									if (isColliding(touchingBox, z->shape, transform1->xSpeed,
+										transform1->ySpeed))
+									{
+										transform1->bColliding = true;
+									}
+								}
 							}
 						}
 					});

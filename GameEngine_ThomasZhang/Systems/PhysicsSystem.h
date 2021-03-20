@@ -19,7 +19,10 @@ public:
 		sf::RectangleShape touchedRectangle,
 		float x, float y
 	);
-
+	bool isColliding(
+		ECS::ComponentHandle<BoxCollider> touchingEntity,
+		sf::RectangleShape touchedRectangle
+	);
 	bool isColliding(
 		ECS::ComponentHandle<BoxCollider> touchingEntity,
 		ECS::ComponentHandle<BoxCollider> touchedEntity

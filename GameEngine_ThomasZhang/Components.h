@@ -1,9 +1,10 @@
 #pragma once
+#include <fstream>
+#include <sstream>
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "ECS.h"
 #include "Interface/Tile.h"
-#include <fstream>
 
 struct Transform
 {
@@ -12,6 +13,7 @@ public:
 
 	float xPos, yPos, rotation;
 	float xSpeed, ySpeed, speedMod;
+	bool bColliding;
 
 	Transform(float x, float y, float newSpeedMod = 0.0f, float newXspeed = 0.0f, float newYSpeed = 0.0f) 
 	{
@@ -24,6 +26,8 @@ public:
 		ySpeed = 0;
 
 		rotation = 0.0f;
+
+		bColliding = false;
 	}
 
 	void updateSpeed(float x, float y)
@@ -34,13 +38,16 @@ public:
 
 	void move()
 	{
-		if (xSpeed!= 0 && ySpeed!= 0)
+		if (!bColliding)
 		{
-			xSpeed /= 2;
-			ySpeed /= 2;
+			if (xSpeed != 0 && ySpeed != 0)
+			{
+				xSpeed /= 2;
+				ySpeed /= 2;
+			}
+			xPos += xSpeed;
+			yPos += ySpeed;
 		}
-		xPos += xSpeed;
-		yPos += ySpeed;
 	}
 
 	void stop()
@@ -127,7 +134,7 @@ struct BoxCollider
 public:
 	ECS_DECLARE_TYPE;
 
-	float leftEdge, rightEdge, topEdge, bottomEdge, boxWidth, boxHeight;
+	int leftEdge, rightEdge, topEdge, bottomEdge, boxWidth, boxHeight;
 
 	BoxCollider()
 	{
@@ -141,7 +148,7 @@ public:
 		//std::memset(this, '\0', sizeof(BoxCollider));
 	}
 
-	void Update(float xSide, float ySide, float width, float height)
+	void Update(int xSide, int ySide, int width, int height)
 	{
 		this->leftEdge = xSide;
 		this->rightEdge = xSide + width;
@@ -223,10 +230,10 @@ public:
 			y < this->maxSize.y && y >= 0 &&
 			z < this->layers && z >= 0)
 		{
-			if (this->map[x][y][z] == NULL)
+			if (this->map[x][y][z] == nullptr)
 			{
 				this->map[x][y][z] = new Tile(x, y, this->gridSizeF, bHasCollision);
-				printf("added tile\n");
+				
 			}
 		}
 	}
@@ -268,8 +275,11 @@ public:
 				{
 					for (size_t z = 0; z < this->layers; z++)
 					{
-						saveFile << x << " " << y << " " << z << " " << this->map[x][y][z]->toString()
-							<< "\n";
+						if (this->map[x][y][z] != nullptr)
+						{
+							saveFile << x << " " << y << " " << z << " " << this->map[x][y][z]->toString()
+								<< "\n";
+						}
 					}
 				}
 			}
@@ -282,42 +292,41 @@ public:
 		saveFile.close();
 	}
 
+
 	void loadTileMap(std::string filename)
 	{
-		std::ifstream loadFile;
-		loadFile.open(filename);
-
-		if (loadFile.is_open())
+		std::printf("Loading TileMap\n");
+		std::ifstream loadfile;
+		loadfile.open(filename);
+		if (loadfile.is_open())
 		{
-			bool colliding = false;
-			loadFile >> maxSize.x >> maxSize.y >> gridSizeF >> layers;
-			this->clear();
+			loadfile >> this->maxSize.x >> this->maxSize.y >> this->gridSizeF >> this->layers;
+			this->gridSizeU = static_cast<uint32_t>(this->gridSizeF); //Return value of new type (float -> uint)
+			clear();
 			this->map.resize(this->maxSize.x, std::vector<std::vector<Tile*>>());
 
-			for (size_t x = 0; x < this->maxSize.x; x++)
+			for (size_t x = 0; x < this->maxSize.x; ++x)
 			{
-				for (size_t y = 0; y < this->maxSize.y; y++)
+				for (size_t y = 0; y < this->maxSize.y; ++y)
 				{
-					this->map[x].resize(this->maxSize.y, std::vector<Tile*>());
-
-					for (size_t z = 0; z < this->layers; z++)
+					this->map.at(x).resize(this->maxSize.y, std::vector<Tile*>());
+					for (size_t z = 0; z < this->layers; ++z)
 					{
-						this->map[x][y].resize(this->layers, nullptr);
+						this->map.at(x).at(y).resize(this->layers, nullptr);
 					}
 				}
 			}
-			
-			while (loadFile >> maxSize.x >> maxSize.y >> layers >> colliding)
+			int tX, tY, tZ;
+			bool tColliding = false;
+			while (loadfile >> tX >> tY >> tZ >> tColliding)
 			{
-				std::cout << maxSize.x << ", " << maxSize.y << ", " << layers << "\n";
-				this->map[maxSize.x][maxSize.y][layers] = new Tile(maxSize.x, maxSize.y, gridSizeF, colliding);
+				printf("Read %d, %d, %d\n", tX, tY, tZ);
+				this->map.at(tX).at(tY).at(tZ) = new Tile(tX, tY, this->gridSizeF, tColliding);
 			}
 		}
 		else
-		{
-			std::cerr << "Error: TileMap could not load '" << filename << "'" << "\n";	
-		}
-		loadFile.close();
+			std::cerr << "Error: TileMap could not load from file `" << filename << "'" << std::endl;
+		loadfile.close();
 	}
 };
 ECS_DEFINE_TYPE(TileMap);
